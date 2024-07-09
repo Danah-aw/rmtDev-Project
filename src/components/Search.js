@@ -1,10 +1,11 @@
 import{
     searchInputEl,
     searchFormEl,
-    spinnerSearchEl,
     jobListSearchEl,
     numberEl
 } from '../common.js';
+import renderError from './Error.js';
+import renderSpinner from './Spinner.js';
 
 // -- SEARCH COMPONENT --
 const submitHandler = event => {
@@ -18,11 +19,8 @@ const submitHandler = event => {
     const forbiddenPattern = /[0-9]/;
     const patternMatch = forbiddenPattern.test(searchText);
     if (patternMatch) {
-        errorTextEl.textContent = 'Your search may not contain numbers';
-        errorEl.classList.add('error--visible');
-        setTimeout(() => {
-            errorEl.classList.remove('error--visible');
-        }, 3500);
+        renderError('Your search may not contain numbers');
+        return;
     }
 
     // blur input
@@ -32,7 +30,7 @@ const submitHandler = event => {
     jobListSearchEl.innerHTML = '';
 
     // render spinner
-    spinnerSearchEl.classList.add('spinner--visible');
+    renderSpinner('search');
 
     // fetch search results
     fetch(`https://bytegrad.com/course-assets/js/2/api/jobs?search=${searchText}`)
@@ -49,7 +47,7 @@ const submitHandler = event => {
             const { jobItems } = data;
 
             // remove spinner
-            spinnerSearchEl.classList.remove('spinner--visible');
+            renderSpinner('search');
 
             // render number of results
             numberEl.textContent = jobItems.length;
