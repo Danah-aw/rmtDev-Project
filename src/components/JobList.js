@@ -4,7 +4,8 @@ import{
     jobDetailsContentEl
 } from '../common.js';
 import renderSpinner from './Spinner.js';
-import renderJobDetails from './JobDetails.jsjs';
+import renderJobDetails from './JobDetails.js';
+import renderError from './Error.js';
 
 const renderJobList = jobItems => {
     jobItems.slice(0, 7).forEach(jobItem => {
@@ -33,7 +34,7 @@ const renderJobList = jobItems => {
 };
 
 // -- JOB LIST COMPONENT --
-const clickHandler = event => {
+const clickHandler = async event => {
     // prevent default behavior (navigation)
     event.preventDefault();
 
@@ -56,29 +57,26 @@ const clickHandler = event => {
     const id = jobItemEl.children[0].getAttribute('href');
 
     // fetch job item data
-    fetch(`${BASE_API_URL}/jobs/${id}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Resource issue (e.g. resource doesn\'t exist) or server issue');
-            }
+    try {
+        const response = await fetch(`${BASE_API_URL}/jobs/${id}`);
+        const data = await response.json();
 
-            return response.json();
-        })
-        .then(data => {
-            // extract job item
-            const { jobItem } = data;
-
-            // remove spinner
-            renderSpinner('job-details');
-
-            // render job details
-            renderJobDetails(jobItem);
-            
-        })
-        .catch(error => { // network problem or other errors (e.g. trying to parse something not JSON as JSON)
-            renderSpinner('job-details');
-            renderError(error.message);
-        });
+        if (!response.ok) {
+            throw new Error(data.description);
+        }
+    
+        // extract job item
+        const { jobItem } = data;
+    
+        // remove spinner
+        renderSpinner('job-details');
+    
+        // render job details
+        renderJobDetails(jobItem);
+    } catch (error) {
+        renderSpinner('job-details');
+        renderError(error.message);
+    }
 };
 
 jobListSearchEl.addEventListener('click', clickHandler);
