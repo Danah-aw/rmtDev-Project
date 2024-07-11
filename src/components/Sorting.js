@@ -5,6 +5,7 @@ import {
     sortingBtnRelevantEl
 } from '../common.js';
 import renderJobList from './JobList.js';
+import renderPaginationButtons from './Pagination.js';
 
 const clickHandler = event => {
     // get clicked button element
@@ -15,6 +16,9 @@ const clickHandler = event => {
 
     // check if intention is recent or relevent sorting
     const recent = clickedButtonEl.className.includes('--recent') ? true : false;
+
+    // update state (reset to page 1)
+    state.currentPage = 1;
 
     // make sorting button look (in)active
     if (recent) {
@@ -35,6 +39,9 @@ const clickHandler = event => {
             return b.relevanceScore - a.relevanceScore;
         });
     }
+
+    // render pagination buttons
+    renderPaginationButtons();
 
     // render job items in list
     renderJobList();
